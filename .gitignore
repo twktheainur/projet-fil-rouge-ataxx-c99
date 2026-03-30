@@ -10,6 +10,8 @@
 *.ilk
 *.log
 
+baseline_agent.c
+
 plugins/*
 !plugins/baseline_agent.dll
 !plugins/baseline_agent.so

@@ -64,6 +64,9 @@ NAME ?= custom
 student_plugin: $(SRC) $(CORE_SRC) | $(PLUGINS_DIR)
 	$(CC) $(CFLAGS) $(SHFLAGS) -o $(PLUGINS_DIR)$(SEP)agent_$(NAME)$(SHLIB) $(SRC) $(CORE_SRC) $(LDFLAGS)
 
+baseline_plugin: baseline_agent.c $(CORE_SRC) | $(PLUGINS_DIR)
+	$(CC) $(CFLAGS) $(SHFLAGS) -o $(PLUGINS_DIR)$(SEP)baseline_agent$(SHLIB) baseline_agent.c $(CORE_SRC) $(LDFLAGS)
+
 # ── Create plugins directory ─────────────────────────────────────────
 ifeq ($(OS),Windows_NT)
 $(PLUGINS_DIR):
@@ -84,4 +87,4 @@ clean:
 	$(RM_F) ataxx_cli$(EXE) ataxx_harness$(EXE) test_avl$(EXE) test_tui$(EXE)
 	-$(RM_F) $(PLUGINS_DIR)$(SEP)*$(SHLIB)
 
-.PHONY: all clean agent_plugin student_plugin
+.PHONY: all clean agent_plugin student_plugin baseline_plugin
