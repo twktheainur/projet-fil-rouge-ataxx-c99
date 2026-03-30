@@ -29,8 +29,7 @@
 /* ── Built-in agent identifiers ───────────────────────────────────── */
 
 #define AGENT_RANDOM 0
-#define AGENT_STUDENT 1
-#define AGENT_PLUGIN_BASE 2 /* indices 2..2+MAX_PLUGINS-1 are plugins */
+#define AGENT_PLUGIN_BASE 1 /* indices 1..1+MAX_PLUGINS-1 are plugins */
 
 /* ================================================================== */
 /*  Harness state                                                     */
@@ -121,7 +120,7 @@ static void harness_init(Harness *h)
 {
   int rows, cols;
   memset(h, 0, sizeof(*h));
-  h->p1_agent = AGENT_STUDENT;
+  h->p1_agent = AGENT_RANDOM;
   h->p2_agent = AGENT_RANDOM;
   h->move_limit = DEFAULT_MOVE_LIMIT;
   h->board_size = ATAXX_BOARD_SIZE;
@@ -148,8 +147,6 @@ static const char *agent_name(const Harness *h, int idx)
 {
   if (idx == AGENT_RANDOM)
     return "Random";
-  if (idx == AGENT_STUDENT)
-    return "Student";
   if (idx >= AGENT_PLUGIN_BASE &&
       idx < AGENT_PLUGIN_BASE + h->plugin_count)
   {
@@ -166,11 +163,6 @@ static void format_agent_menu_name(const Harness *h, int idx,
     snprintf(buf, buf_size, "Random [built-in]");
     return;
   }
-  if (idx == AGENT_STUDENT)
-  {
-    snprintf(buf, buf_size, "Student [built-in]");
-    return;
-  }
   snprintf(buf, buf_size, "%s [plugin]", agent_name(h, idx));
 }
 
@@ -180,10 +172,6 @@ static Move agent_get_move(Harness *h, int agent_idx,
   if (agent_idx == AGENT_RANDOM)
   {
     return agent_random_choose_move(state);
-  }
-  if (agent_idx == AGENT_STUDENT)
-  {
-    return agent_student_choose_move(state, ctx);
   }
   if (agent_idx >= AGENT_PLUGIN_BASE &&
       agent_idx < AGENT_PLUGIN_BASE + h->plugin_count)
@@ -302,7 +290,7 @@ static void draw_menu(Harness *h)
 
   /* Player 1 */
   format_agent_menu_name(h, h->p1_agent, agent_buf, sizeof(agent_buf));
-  snprintf(buf, sizeof(buf), "  Player 1 plugin: %s", agent_buf);
+  snprintf(buf, sizeof(buf), "  Player 1 agent: %s", agent_buf);
   draw_menu_item(h, r, left_col + 2, buf,
                  h->menu_cursor == 0 ? TUI_BRIGHT_WHITE : TUI_WHITE,
                  h->menu_cursor == 0);
@@ -310,7 +298,7 @@ static void draw_menu(Harness *h)
 
   /* Player 2 */
   format_agent_menu_name(h, h->p2_agent, agent_buf, sizeof(agent_buf));
-  snprintf(buf, sizeof(buf), "  Player 2 plugin: %s", agent_buf);
+  snprintf(buf, sizeof(buf), "  Player 2 agent: %s", agent_buf);
   draw_menu_item(h, r, left_col + 2, buf,
                  h->menu_cursor == 1 ? TUI_BRIGHT_WHITE : TUI_WHITE,
                  h->menu_cursor == 1);

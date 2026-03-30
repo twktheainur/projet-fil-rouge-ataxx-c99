@@ -27,8 +27,10 @@ Cibles utiles :
 - `make ataxx_harness`
 - `make test_avl`
 - `make test_tui`
-- `make agent_plugin`
 - `make student_plugin SRC=my_agent.c NAME=custom`
+
+Le depot ne fournit plus d'agent etudiant integre. Les strategies etudiantes
+sont attendues sous forme de plugins construits avec `student_plugin`.
 
 ## Objectif pedagogique
 

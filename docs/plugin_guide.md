@@ -260,29 +260,18 @@ game_apply_move(&copie, un_coup);       /* modifie la copie, pas l'original */
 
 ## 3. Écrire votre agent
 
-### Partir du modèle
+### Partir d'un squelette minimal
 
-Le plus simple est de **copier** `src/agents/agent_student.c` dans un nouveau
-fichier :
-
-```
-cp src/agents/agent_student.c mon_agent.c       # Linux / MSYS2
-copy src\agents\agent_student.c mon_agent.c    # Invite de commandes Windows
-```
-
-Puis ouvrez `mon_agent.c` et **renommez** la fonction :
+Créez un nouveau fichier `mon_agent.c` et définissez directement la fonction
+exportée du plugin :
 
 ```c
-/* AVANT (dans src/agents/agent_student.c) */
-Move agent_student_choose_move(const GameState *state, AgentContext *context)
-
-/* APRÈS (dans votre fichier plugin) */
 Move agent_choose_move(const GameState *state, AgentContext *context)
 ```
 
-C'est tout — vous avez maintenant un plugin fonctionnel. Vous pouvez
-commencer à modifier la fonction d'évaluation, ajouter minimax, alpha-beta,
-etc.
+Le chargeur de plugins recherche exactement ce symbole dans la DLL ou le
+fichier `.so`. Vous pouvez partir de l'exemple minimal ci-dessous puis ajouter
+votre évaluation, minimax, alpha-beta, etc.
 
 ### Exemple minimal
 
@@ -369,15 +358,8 @@ make student_plugin SRC=mon_agent.c NAME=monnom
 Cela produit `plugins/agent_monnom.dll` (Windows) ou
 `plugins/agent_monnom.so` (Linux).
 
-Pour vérifier rapidement que le système de chargement fonctionne, vous pouvez
-aussi construire le plugin de démonstration fourni :
-
-```bash
-make agent_plugin
-```
-
-Cela produit `plugins/agent_random.dll` (Windows) ou
-`plugins/agent_random.so` (Linux).
+Le dépôt ne fournit plus d'agent étudiant intégré : utilisez directement cette
+cible pour générer votre propre plugin.
 
 ### 4.4 Code::Blocks
 
@@ -418,7 +400,7 @@ Vous devriez voir une ligne contenant `agent_choose_move` avec un drapeau `T`
    ```
    gcc -std=c99 -Wall -O2 -Iinclude -o ataxx_harness.exe ^
          src/main_harness.c src/game.c src/avl.c src/agents/agent_random.c ^
-         src/agents/agent_student.c src/tui.c src/agent_loader.c
+         src/tui.c src/agent_loader.c
    ```
 
 2. Lancez le programme :
@@ -432,8 +414,8 @@ Vous devriez voir une ligne contenant `agent_choose_move` avec un drapeau `T`
    +----------------------------------------+
    |      ATAXX - Tournament Arena          |
    |                                        |
-   |  Player 1 plugin: Student [built-in]  |
-   |  Player 2 plugin: Random [built-in]   |
+   |  Player 1 agent: Random [built-in]    |
+   |  Player 2 agent: Random [built-in]    |
    |  Move limit:< 100          >          |
    |  Board size:< 5            >          |
    |  [ENTER] Start game                   |
@@ -452,9 +434,9 @@ Vous devriez voir une ligne contenant `agent_choose_move` avec un drapeau `T`
 
 6. Choisissez votre plugin avec **↑ ↓**, puis validez avec **Entrée**.
    Le plugin est chargé à ce moment-là et assigné directement au joueur
-   sélectionné. Les stratégies intégrées `Random` et `Student` restent les
-   valeurs par défaut, mais le sélecteur de joueur ne propose que des plugins
-   du dossier `plugins/`.
+   sélectionné. La stratégie intégrée `Random` reste la valeur par défaut,
+   mais le sélecteur de joueur ne propose que des plugins du dossier
+   `plugins/`.
 
 7. Revenez au menu principal, puis appuyez sur **Entrée** sur la ligne
    *Start game* pour lancer la partie.
@@ -467,8 +449,8 @@ Le binaire `ataxx_cli` accepte aussi les plugins depuis le dossier
 Exemples :
 
 ```bash
-./ataxx_cli --p1 student --p2 agent_monnom       # Linux
-.\ataxx_cli.exe --p1 student --p2 agent_monnom   # Windows
+./ataxx_cli --p1 agent_monnom --p2 random       # Linux
+.\ataxx_cli.exe --p1 agent_monnom --p2 random   # Windows
 ```
 
 Vous pouvez aussi passer un chemin explicite vers le fichier `.dll` / `.so`
@@ -494,9 +476,9 @@ Votre fonction n'est pas exportée. Causes fréquentes :
 
 - **Faute de frappe dans le nom de la fonction.** Il doit être exactement
   `agent_choose_move`. Vérifiez l'orthographe et la casse.
-- **Vous avez oublié de renommer la fonction** depuis
-  `agent_student_choose_move` (le nom dans le modèle) vers
-  `agent_choose_move`.
+- **La fonction exportée n'a pas le bon nom.** Elle doit s'appeler
+   exactement `agent_choose_move`. Si vous repartez d'un ancien squelette avec
+   un autre nom de fonction, renommez-la avant de compiler.
 - **Utilisation de MSVC sans `__declspec(dllexport)`.** Si vous compilez avec
   Visual Studio, ajoutez ceci devant votre fonction :
   ```c

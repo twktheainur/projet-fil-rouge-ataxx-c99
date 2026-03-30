@@ -8,6 +8,5 @@ typedef struct AgentContext {
 } AgentContext;
 
 Move agent_random_choose_move(const GameState *state);
-Move agent_student_choose_move(const GameState *state, AgentContext *context);
 
 #endif

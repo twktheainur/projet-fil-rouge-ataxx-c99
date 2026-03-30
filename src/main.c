@@ -9,12 +9,11 @@
 /* ── Agent selection ─────────────────────────────────────────────── */
 
 #define AGENT_RANDOM 0
-#define AGENT_STUDENT 1
-#define AGENT_PLUGIN 2
+#define AGENT_PLUGIN 1
 
 typedef struct
 {
-    int kind;           /* AGENT_RANDOM, AGENT_STUDENT, or AGENT_PLUGIN */
+    int kind;           /* AGENT_RANDOM or AGENT_PLUGIN */
     AgentPlugin plugin; /* only used when kind == AGENT_PLUGIN */
 } AgentSlot;
 
@@ -23,8 +22,6 @@ static Move agent_slot_get_move(AgentSlot *slot, const GameState *state,
 {
     if (slot->kind == AGENT_RANDOM)
         return agent_random_choose_move(state);
-    if (slot->kind == AGENT_STUDENT)
-        return agent_student_choose_move(state, ctx);
     if (slot->kind == AGENT_PLUGIN)
         return slot->plugin.choose_move(state, ctx);
     /* fallback */
@@ -38,8 +35,6 @@ static const char *agent_slot_name(const AgentSlot *slot)
 {
     if (slot->kind == AGENT_RANDOM)
         return "random";
-    if (slot->kind == AGENT_STUDENT)
-        return "student";
     if (slot->kind == AGENT_PLUGIN)
         return slot->plugin.name;
     return "???";
@@ -56,8 +51,8 @@ static bool parse_agent(const char *arg, AgentSlot *slot)
     }
     if (strcmp(arg, "student") == 0)
     {
-        slot->kind = AGENT_STUDENT;
-        return true;
+        fprintf(stderr, "La strategie integree 'student' a ete retiree. Construisez votre agent avec 'make student_plugin ...' puis chargez le plugin.\n");
+        return false;
     }
 
     slot->kind = AGENT_PLUGIN;
@@ -93,7 +88,7 @@ static void print_usage(const char *prog)
 {
     printf("Usage: %s [options]\n", prog);
     printf("Options:\n");
-    printf("  --p1 <strategy>   Strategy for player 1 (default: student)\n");
+    printf("  --p1 <strategy>   Strategy for player 1 (default: random)\n");
     printf("  --p2 <strategy>   Strategy for player 2 (default: random)\n");
     printf("  --depth <N>       Search depth limit     (default: 3)\n");
     printf("  --limit <N>       Maximum number of turns (default: 100)\n");
@@ -101,7 +96,6 @@ static void print_usage(const char *prog)
            3, ATAXX_MAX_BOARD_SIZE, ATAXX_BOARD_SIZE);
     printf("\nStrategies:\n");
     printf("  random            Built-in random agent\n");
-    printf("  student           Built-in student (greedy) agent\n");
     printf("  <name>            Plugin from plugins/ folder (e.g. agent_foo)\n");
     printf("  <path.dll/.so>    Load a shared-library plugin by path\n");
 }
@@ -116,7 +110,7 @@ int main(int argc, char *argv[])
     int i;
 
     /* defaults */
-    p1.kind = AGENT_STUDENT;
+    p1.kind = AGENT_RANDOM;
     p2.kind = AGENT_RANDOM;
     context.depth_limit = 3;
 
