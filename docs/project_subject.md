@@ -29,5 +29,4 @@ Le moteur de jeu, l'arbitre et une baseline sont fournis. Votre travail porte su
 3. Un alpha-beta correct.
 4. Une intégration justifiée de la structure équilibrée.
 5. Toute extention que vous jugez utile
-6. Une campagne de test contre plusieurs adversaires.
-7. Une analyse de complexité théorique et observée.
+6. Une analyse de complexité théorique et observée.

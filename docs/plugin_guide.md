@@ -356,10 +356,8 @@ make student_plugin SRC=mon_agent.c NAME=monnom
 ```
 
 Cela produit `plugins/agent_monnom.dll` (Windows) ou
-`plugins/agent_monnom.so` (Linux).
+`plugins/agent_monnom.so` (Linux/MacOS).
 
-Le dépôt ne fournit plus d'agent étudiant intégré : utilisez directement cette
-cible pour générer votre propre plugin.
 
 ### 4.4 Code::Blocks
 
