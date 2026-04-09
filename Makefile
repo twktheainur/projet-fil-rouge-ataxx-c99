@@ -4,34 +4,34 @@ CFLAGS  ?= -std=c99 -Wall -Wextra -Wpedantic -O2 -Iinclude
 LDFLAGS ?=
 
 # ── Platform detection ───────────────────────────────────────────────
-ifeq ($(OS),Windows_NT)
+# Check MSYSTEM first — MSYS2 also sets OS=Windows_NT, so we must
+# detect it before the generic Windows branch.
+ifneq ($(MSYSTEM),)
+  # Running inside an MSYS2 shell (UCRT64, MINGW64, MINGW32, …)
   EXE     := .exe
   SHLIB   := .dll
   SHFLAGS := -shared
   DL_LIBS :=
-  RM_F    := cmd /C del /Q /F
+  RM_F    := rm -f
+  MKDIR_P := mkdir -p
+  SEP     := /
+else ifeq ($(OS),Windows_NT)
+  # Native Windows (PowerShell / cmd)
+  EXE     := .exe
+  SHLIB   := .dll
+  SHFLAGS := -shared
+  DL_LIBS :=
+  RM_F    := del /Q /F
+  MKDIR_P := if not exist plugins mkdir
   SEP     := \\
-else ifeq ($(MSYSTEM),MINGW64)
-  EXE     := .exe
-  SHLIB   := .dll
-  SHFLAGS := -shared
-  DL_LIBS :=
-  RM_F    := rm -f
-  SEP     := \
-
-else ifeq ($(MSYSTEM),UCRT64)
-  EXE     := .exe
-  SHLIB   := .dll
-  SHFLAGS := -shared
-  DL_LIBS :=
-  RM_F    := rm -f
-  SEP     := \
 else
+  # Linux / macOS
   EXE     :=
   SHLIB   := .so
   SHFLAGS := -shared -fPIC
   DL_LIBS := -ldl
   RM_F    := rm -f
+  MKDIR_P := mkdir -p
   SEP     := /
 endif
 
@@ -82,13 +82,8 @@ student_plugin: $(SRC_PATH) $(CORE_SRC) | $(PLUGINS_DIR)
 	$(CC) $(CFLAGS) $(SHFLAGS) -o $(PLUGINS_DIR)$(SEP)agent_$(NAME)$(SHLIB) $(SRC_PATH) $(CORE_SRC) $(LDFLAGS)
 
 # ── Create plugins directory ─────────────────────────────────────────
-ifeq ($(OS),Windows_NT)
 $(PLUGINS_DIR):
-	if not exist $(PLUGINS_DIR) mkdir $(PLUGINS_DIR)
-else
-$(PLUGINS_DIR):
-	mkdir -p $(PLUGINS_DIR)
-endif
+	$(MKDIR_P) $(PLUGINS_DIR)
 
 # ── Pattern rule ─────────────────────────────────────────────────────
 %.o: %.c
@@ -96,9 +91,9 @@ endif
 
 # ── Clean ────────────────────────────────────────────────────────────
 clean:
-	-$(RM_F) $(subst /,\,$(CLI_OBJ) $(HARNESS_OBJ) $(TEST_AVL_OBJ) $(TEST_TUI_OBJ))
-	-$(RM_F) $(subst /,\,$(LEGACY_AGENT_OBJ))
-	-$(RM_F) *.exe
-	-$(RM_F) $(subst /,\,$(PLUGINS_DIR))\*$(SHLIB)
+	-$(RM_F) $(CLI_OBJ) $(HARNESS_OBJ) $(TEST_AVL_OBJ) $(TEST_TUI_OBJ)
+	-$(RM_F) $(LEGACY_AGENT_OBJ)
+	-$(RM_F) ataxx_cli$(EXE) ataxx_harness$(EXE) test_avl$(EXE) test_tui$(EXE)
+	-$(RM_F) $(PLUGINS_DIR)$(SEP)*$(SHLIB)
 
 .PHONY: all clean agent_random_plugin student_plugin
