@@ -96,9 +96,9 @@ endif
 
 # ── Clean ────────────────────────────────────────────────────────────
 clean:
-	rm -f $(CLI_OBJ) $(HARNESS_OBJ) $(TEST_AVL_OBJ) $(TEST_TUI_OBJ)
-	-rm -f $(LEGACY_AGENT_OBJ)
-	rm -f ataxx_cli$(EXE) ataxx_harness$(EXE) test_avl$(EXE) test_tui$(EXE)
-	-rm -f $(PLUGINS_DIR)/*$(SHLIB)
+	del /Q /F $(subst /,\,$(CLI_OBJ) $(HARNESS_OBJ) $(TEST_AVL_OBJ) $(TEST_TUI_OBJ)) 2>nul || true
+	-del /Q /F $(subst /,\,$(LEGACY_AGENT_OBJ)) 2>nul || true
+	del /Q /F *.exe 2>nul || true
+	-del /Q /F $(subst /,\,$(PLUGINS_DIR))\*$(SHLIB) 2>nul || true
 
 .PHONY: all clean agent_random_plugin student_plugin
