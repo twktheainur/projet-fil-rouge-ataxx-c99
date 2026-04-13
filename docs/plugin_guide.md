@@ -593,3 +593,57 @@ Votre agent a retourné un coup qui n'est pas légal. Conseils de débogage :
 8. **C99 uniquement** : évitez les fonctionnalités C++, les VLA dans les
    headers, ou les extensions spécifiques au compilateur qui ne fonctionneront
    pas avec `gcc -std=c99 -pedantic`.
+
+---
+
+## 8. Lancer un tournoi
+
+Le programme `ataxx_tournament` organise automatiquement un tournoi de type
+**Coupe du Monde** entre tous les plugins présents dans `plugins/` (l'agent
+aléatoire intégré est toujours inclus).
+
+### Format du tournoi
+
+1. **Phase de groupes** — poule unique en round-robin : chaque agent affronte
+   chaque adversaire deux fois (une fois en tant que Joueur 1, une fois en
+   tant que Joueur 2). Points : victoire = 3, nul = 1, défaite = 0.
+2. **Phase éliminatoire** — les meilleurs agents sont placés dans un tableau à
+   élimination directe. Chaque confrontation se joue en aller-retour (2 matchs,
+   un comme chaque joueur). Le vainqueur est décidé au score cumulé. En cas
+   d'égalité, la tête de série la mieux classée avance. Un match pour la 3e
+   place est également joué.
+
+### Utilisation
+
+```bash
+# Compiler les plugins souhaités
+make agent_random_plugin
+make student_plugin SRC=mon_agent.c NAME=alpha_beta
+
+# Compiler et lancer le tournoi en une commande
+make tournament
+
+# Ou lancer manuellement avec des options
+./ataxx_tournament --size 5 --limit 100 --depth 3 --output results.html
+```
+
+### Options
+
+| Option     | Défaut                   | Description                     |
+|------------|--------------------------|----------------------------------|
+| `--size`   | 5                        | Taille du plateau (3-9)          |
+| `--limit`  | 100                      | Nombre max de tours par partie   |
+| `--depth`  | 3                        | Profondeur de recherche          |
+| `--output` | `tournament_report.html` | Fichier de rapport HTML          |
+
+### Rapport HTML
+
+Le rapport généré (`tournament_report.html` par défaut) est un fichier HTML
+autonome contenant :
+
+- Un **podium** avec le champion, le finaliste et la 3e place
+- Le **classement de la phase de groupes** avec points, victoires, nuls,
+  défaites, buts pour/contre et différence
+- Le **tableau éliminatoire** avec les scores agrégés
+- Les **détails de chaque partie** sous forme d'onglets accordéon dépliables
+  qui montrent chaque coup avec l'état du plateau illustré après chaque coup
